@@ -66,10 +66,10 @@ class FormatData:
                         "id": ++idx
                     })
 
-                # add unique date in temp
-                self.unique_category.append(
-                    str(record["date"])
-                )
+                    # add unique date in temp
+                    self.unique_category.append(
+                        str(record["date"])
+                    )
 
 
 result = FormatData(data)
