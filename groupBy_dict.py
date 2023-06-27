@@ -1,85 +1,49 @@
 import json
-
 data = [
     {"S":1, "date":"01/01/23"},
     {"F":1, "date":"01/01/23"},
     {"F":3, "date":"01/02/23"},
+    {"PNP":3, "date":"01/02/23"},
     {"S":5, "date":"01/03/23"},
     {"PNP":5, "date":"01/03/23"},
-    {"S":5, "date":"01/03/23"},
+    {"PNP":2, "date":"01/04/23"},
 ]
 
+def group_by(data_list):
 
-class FormatData:
-    def __init__(self, data):
-        self.data = data
-        self.result = []
-        self.unique_category = []
+    result = []
+    temp = {}
+    jdx = 0 
 
-    def get_result_length(self):
-        return len(self.result)
+    for record in data_list:
 
-    def get_result(self):
-        if len(self.data) == 0:
-            return "Empty list"
-        return self.result
+        s = record.get("S") if "S" in record else 0
+        f = record.get("F") if "F" in record else 0
+        pnp = record.get('PNP') if "PNP" in record else 0 
 
-    def process_data(self):
+        if record.get('date') not in temp:
+            # add record to result
+            result.append({
+                "date": record.get("date"),
+                "S": s,
+                "F": f,
+                "PNP": pnp
+            })
+            # add record to temp
+            temp.update({
+                record.get('date'): jdx
+            })
+            jdx += 1
+            continue
 
-        # loop through data
-        for idx, record in enumerate(self.data):
-            # check if result dic is empty
-            if self.get_result_length() == 0:
-                self.result.append({
-                    "date": str(record["date"]),
-                    "S": int(record["S"]) if "S" in record else 0,
-                    "PNP": int(record["PNP"]) if "PNP" in record else 0,
-                    'F': int(record["F"]) if "F" in record else 0,
-                    "id": idx + 1
-                })
-                # add unique date in temp
-                self.unique_category.append(
-                    str(record["date"])
-                )
-                continue
+        if record.get('date') in temp:
+            # update existing record in result
+            r_idx = temp.get(record.get('date'))
+            result[r_idx]['S'] +=  s 
+            result[r_idx]['F'] += f 
+            result[r_idx]['PNP'] += pnp
 
-            # check if result set is not empty
-            if self.get_result_length() > 0:
-
-                # check if date is already present in the temp variable
-                if str(record["date"]) in self.unique_category:
-
-                    # get index from result
-                    dt_idx = self.unique_category.index(str(record["date"]))
-                    self.result[dt_idx]["S"] = self.result[dt_idx]["S"] + int((record["S"]) if "S" in record else 0)
-                    self.result[dt_idx]["PNP"] = self.result[dt_idx]["PNP"] + int((record["PNP"]) if "PNP" in record else 0)
-                    self.result[dt_idx]["F"] = self.result[dt_idx]["F"] + int((record["F"]) if "F" in record else 0)
-                    continue
-
-                else:
-
-                    self.result.append( {
-                        "date": str(record["date"]),
-                        "S": int(record["S"]) if "S" in record else 0,
-                        "PNP": int(record["PNP"]) if "PNP" in record else 0,
-                        'F': int(record["F"]) if "F" in record else 0,
-                        "id": ++idx
-                    })
-
-                    # add unique date in temp
-                    self.unique_category.append(
-                        str(record["date"])
-                    )
+    return result
 
 
-result = FormatData(data)
-result.process_data()
-# print(json.dumps(len(result.data),indent=2))
-
-
-
-# print(json.dumps(result.unique_category,indent=2))
-print(json.dumps(result.get_result(),indent=2))
-# p = process_data(data)
-# print(result.result)
-# print(json.dumps(p,indent=2))
+print(json.dumps(group_by(data),indent=2))
